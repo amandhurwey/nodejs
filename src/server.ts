@@ -1,8 +1,8 @@
 import http from "http";
+import handleRouter from "./router";
 
 const handleServer: http.RequestListener<typeof http.IncomingMessage, typeof http.ServerResponse> = (req, res) => {
-  res.write(`<p>Welcome to node js</p>`);
-  return res.end();
+  return handleRouter(req, res);
   //after ending the response, it we try to write something to it, it will throw an error.
 };
 
