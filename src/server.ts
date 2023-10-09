@@ -1,34 +1,19 @@
 import express from "express";
-import fs from "fs";
-import path from "path";
+import productRouter from "./routes/products";
+import rootRouter from "./routes";
+import notFoundRouter from "./routes/404";
+
 //1. get the app
 const app = express();
 
-app.use((req, res, next) => {
-  console.log(`I will be called every time`);
-  next();
-});
+//2. Add middle wares
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-app.use(`/users`, (req, res) => {
-  console.log(`Inside users path`);
-  fs.readFile(path.join(__dirname, "./data/users.txt"), "utf8", (err, data) => {
-    if (err) {
-      res.statusCode = 500;
-      res.end("Internal Server Error");
-      return;
-    }
-    const users = data.trim().split("\n");
-    const usersHtml = users.map((user) => `<li>${user}</li>`).join(``);
-    res.setHeader("Content-type", "text/html");
-    res.statusCode = 200;
-    return res.send(`<h1>Users List</h1> <ul>${usersHtml}</ul>`);
-  });
-});
-
-app.use(`/`, (req, res) => {
-  console.log(`Inside Root path`);
-  fs.createReadStream(path.join(__dirname, "./templates/basicForm.html")).pipe(res);
-});
+//3. Handle Routing
+app.use(`/products`, productRouter);
+app.use(`/`, rootRouter);
+app.use(notFoundRouter);
 
 //listen
 app.listen(3001);
