@@ -1,0 +1,22 @@
+<%- include('./partials/html-head.ejs') %>
+  <body class="bg-gray-100">
+    <nav>
+        <%- include('./partials/navbar.ejs') %>
+    </nav>
+    <h1 class="text-3xl p-4">All Products</h1>
+    <% if (products?.length > 0) { %>
+        <div class="grid grid-cols-4 gap-4 p-4  min-h-[100vh]">
+            <% products.forEach((product, index) => { %>
+             <div key="<% index %>" class="border rounded-md shadow-md p-4 w-full flex flex-col gap-2 bg-white h-fit">
+                 <img alt="product-image" src="<%= product?.productUrl ? product?.productUrl : "https://curie.pnnl.gov/sites/default/files/default_images/default-image_0.jpeg"%>" /> 
+                  <p class="text-lg font-semibold"><%= product?.productName %></p>
+                  <p class="text-md"><%= product?.productDescription %>
+                  </p>
+              </div>
+            <% }) %>
+    <% } else { %>
+        <p class="text-xl">No Products</p>   
+        <% } %>
+    </div>
+  </body>
+</html>

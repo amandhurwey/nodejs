@@ -2,7 +2,7 @@ import { Router } from "express";
 const notFoundRouter = Router();
 
 notFoundRouter.use(`/`, (req, res) => {
-  res.status(404).end(`<h1>Page not found</h1>`);
+  res.status(404).render(`404.ejs`, { pageTitle: `Page not found` });
 });
 
 export default notFoundRouter;

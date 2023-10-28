@@ -11,26 +11,55 @@ productRouter.get(`/`, (req, res) => {
       res.status(500).send("Internal Server Error");
       return;
     }
-    const products = data.trim().split("\n");
-    const productsHtml = products.map((product) => `<li>${product}</li>`).join(``);
-
-    return res.status(200).send(`<h1>Product List</h1> <ul>${productsHtml}</ul>`);
+    try {
+      const products = JSON.parse(data);
+      return res.render("products", { products, pageTitle: "Products" });
+    } catch (error) {
+      console.log(`Error in reading products`, error);
+      return res.status(500).send(`Internal Server Error`);
+    }
   });
 });
 
 productRouter.get(`/add-product`, (req, res) => {
-  res.status(200).sendFile(path.join(rootPath, "views", "add-product.html"));
+  res.status(200).render("add-product", { pageTitle: "Add Product" });
 });
 
 productRouter.post(`/add-product`, (req, res) => {
   const body = req.body;
   const productName = body?.[`product-name`];
-  fs.appendFile(path.join(rootPath, "data", "products.txt"), productName + "\n", (err) => {
+  const productDescription = body?.[`prodcut-description`];
+  const productUrl = body?.[`image-url`];
+  const product = {
+    productName,
+    productDescription,
+    productUrl,
+  };
+  fs.readFile(path.join(rootPath, "data", "products.txt"), "utf-8", (err, data) => {
     if (err) {
-      res.status(500).send(`Internal Server Error`);
-      return;
+      //file dose not exist -> write a new file
+      fs.writeFile("products.txt", JSON.stringify([product]), (err) => {
+        if (err) {
+          console.log("Error writing new product to new file", err);
+          return res.status(500).send("Internal Server Error");
+        }
+      });
+    } else {
+      try {
+        const products = JSON.parse(!data ? "[]" : data);
+        products.push(product);
+        fs.writeFile(path.join(rootPath, "data", "products.txt"), JSON.stringify(products), (err) => {
+          if (err) {
+            throw new Error("Could not write to the file");
+          } else {
+            res.redirect("/products");
+          }
+        });
+      } catch (error) {
+        console.log("Error in writing product to file", error);
+        return res.status(500).send("Internal Server Error");
+      }
     }
-    res.redirect("/products");
   });
 });
 
